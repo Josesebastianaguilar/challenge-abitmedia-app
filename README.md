@@ -34,6 +34,13 @@ characters, entered manually.
 
 Project constructed with Laravel V11
 
+## Installation
+Clone
+Verify php 8.2 or higher
+composer install
+php artisan key:generate --ansi
+
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
