@@ -1,0 +1,44 @@
+# Ignore vendor directory (contains Composer dependencies)
+/vendor
+
+# Ignore node_modules directory (contains npm dependencies)
+/node_modules
+
+# Ignore compiled CSS and JS files
+/public/css/
+/public/js/
+
+# Ignore uploaded files and storage directory (e.g., app storage, cache, logs)
+/storage/*
+!/storage/.gitkeep
+
+# Ignore environment configuration file
+/.env
+
+# Ignore local development files and editor configurations
+/.idea
+/.vscode
+/.phpunit.result.cache
+
+# Ignore logs and other temporary files
+/logs/
+/phpserver/
+/php-errors.log
+/php_error.log
+/public/hot
+/public/storage
+/storage/*.key
+/.php_cs.cache
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore SQLite database file
+/database/database.sqlite
+
+# Ignore composer lock file
+composer.lock
+
+# Ignore configuration files that may contain sensitive information
+/config/*.php
