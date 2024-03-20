@@ -19,7 +19,7 @@ class ServiceController extends Controller
     {
         try {
             $services = Service::all();
-            return response()->json(['success' => true, 'data' => $services]);
+            return response()->json(['success' => true, 'services' => $services]);
         } catch (\Exception $exception) {
             return response()->json(['success' => false, 'message' => $exception->getMessage()], 500);
         }
@@ -35,9 +35,9 @@ class ServiceController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255',
-                'sku' => 'required|string|unique:services,sku|max:10',
-                'price' => 'required|numeric',
+                'name' => 'required|string|min:3|max:100',
+                'sku' => 'required|string|unique:services,sku|min:10|max:10',
+                'price' => 'required|numeric|min:0',
                 // Add other validation rules as needed
             ]);
 
@@ -46,7 +46,7 @@ class ServiceController extends Controller
             }
 
             $service = Service::create($validator->validated());
-            return response()->json(['success' => true, 'data' => $service], 201);
+            return response()->json(['success' => true, 'service' => $service], 201);
         } catch (\Exception $exception) {
             return response()->json(['success' => false, 'message' => $exception->getMessage()], 500);
         }
@@ -55,13 +55,29 @@ class ServiceController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param Service $service
+     * @param String $sku
      * @return JsonResponse
      */
-    public function show(Service $service): JsonResponse
+    public function show(String $sku): JsonResponse
     {
         try {
-            return response()->json(['success' => true, 'data' => $service]);
+            $validator = Validator::make([
+                'sku' => $sku
+            ], 
+            [
+                'sku' => 'required|string|min:10|max:10',
+                // Add other validation rules as needed
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+            }
+            $service = Service::where('sku', $sku)->first();
+            if ($service) {
+                return response()->json(['success' => true, 'service' => $service]);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Service not found'], 404);
+            }
         } catch (\Exception $exception) {
             return response()->json(['success' => false, 'message' => $exception->getMessage()], 500);
         }
@@ -71,25 +87,50 @@ class ServiceController extends Controller
      * Update the specified resource in storage.
      *
      * @param Request $request
-     * @param Service $service
+     * @param String $sku
      * @return JsonResponse
      */
-    public function update(Request $request, Service $service): JsonResponse
+    public function update(Request $request, String $sku): JsonResponse
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255',
-                'sku' => 'required|string|unique:services,sku|min:10|max:10',
-                'price' => 'required|numeric',
-                // Add other validation rules as needed
-            ]);
+            if (!$request->hasAny(['name', 'price'])) {
+                return response()->json(['success' => false, 'message' => 'No data to update'], 422);
+            }
+
+            $rules = [];
+            $comparator = [];
+            // Add validation rules for 'name' if present in the request
+            if ($request->has('name')) {
+                $rules['name'] = 'required|string|min:3|max:100';
+                $comparator['name'] = $request->get('name');
+            }
+
+            // Add validation rules for 'price' if present in the request
+            if ($request->has('price')) {
+                $rules['price'] = 'required|numeric|min:0';
+                $comparator['price'] = $request->get('price');
+            }
+            // Add validation rules for 'price' if present in the request
+            if ($request->has('sku')) {
+                $rules['sku'] = 'required|string|unique:services,sku|min:10|max:10';
+                $comparator['sku'] = $request->get('sku');
+            } else {
+                $comparator['sku'] = $sku;
+                $rules['sku'] = 'required|string|min:10|max:10';
+            }
+            
+            $validator = Validator::make($comparator, $rules);
 
             if ($validator->fails()) {
                 return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
             }
-
-            $service->update($validator->validated());
-            return response()->json(['success' => true, 'data' => $service]);
+            $service = Service::where('sku', $sku)->first();
+            if ($service) {
+                Service::where('sku', $sku)->update($validator->validated());
+                return response()->json(['success' => true, 'data' => $validator->validated()]);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Service not found'], 404);
+            }
         } catch (\Exception $exception) {
             return response()->json(['success' => false, 'message' => $exception->getMessage()], 500);
         }
@@ -98,14 +139,30 @@ class ServiceController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param Service $service
+     * @param String $sku
      * @return JsonResponse
      */
-    public function destroy(Service $service): JsonResponse
+    public function destroy(String $sku): JsonResponse
     {
         try {
-            $service->delete();
-            return response()->json(['success' => true, 'message' => 'Service deleted successfully']);
+            $validator = Validator::make([
+                'sku' => $sku
+            ], 
+            [
+                'sku' => 'required|string|min:10|max:10',
+                // Add other validation rules as needed
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+            }
+            $service = Service::where('sku', $sku)->first();
+            if ($service) {
+                Service::where('sku', $sku)->delete();
+                return response()->json(['success' => true, 'message' => 'Service deleted successfully']);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Service not found'], 404);
+            }
         } catch (\Exception $exception) {
             return response()->json(['success' => false, 'message' => $exception->getMessage()], 500);
         }

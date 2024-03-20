@@ -38,7 +38,7 @@ class SoftwareProductController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255',
+                'name' => 'required|string|min:3|max:100',
                 'sku' => 'required|string|unique:software_products,sku|min:10|max:10',
                 // Add other validation rules as needed
             ]);
@@ -48,7 +48,7 @@ class SoftwareProductController extends Controller
             }
 
             $softwareProduct = SoftwareProduct::create($validator->validated());
-            return response()->json(['success' => true, 'data' => $softwareProduct], 201);
+            return response()->json(['success' => true, 'software_product' => $softwareProduct], 201);
         } catch (\Exception $exception) {
             return response()->json(['success' => false, 'message' => $exception->getMessage()], 500);
         }
@@ -68,7 +68,11 @@ class SoftwareProductController extends Controller
                 return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
             }
             $softwareProduct = SoftwareProduct::where('sku', $sku)->first();
-            return response()->json(['success' => true, 'software_product' => $softwareProduct]);
+            if ($softwareProduct) {
+                return response()->json(['success' => true, 'software_product' => $softwareProduct]);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Software product not found'], 404);
+            }
         } catch (\Exception $exception) {
             return response()->json(['success' => false, 'message' => $exception->getMessage()], 500);
         }
@@ -93,7 +97,7 @@ class SoftwareProductController extends Controller
         
             // Add validation rules for 'name' if present in the request
             if ($request->has('name')) {
-                $rules['name'] = 'required|string|max:255';
+                $rules['name'] = 'required|string|min:3|max:100';
             }
             
             // Add validation rules for 'sku' if present in the request

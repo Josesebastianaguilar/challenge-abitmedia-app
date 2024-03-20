@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\OperativeSystem;
+use App\Models\SoftwareProductLicense;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -143,8 +144,9 @@ class OperativeSystemController extends Controller
             }
             $operativeSystem = OperativeSystem::where('slug', $slug)->first();
             if ($operativeSystem) {
+                SoftwareProductLicense::where('operative_system_slug', $slug)->delete();
                 OperativeSystem::where('slug', $slug)->delete();
-                return response()->json(['success' => true, 'message' => 'Operative system deleted']);
+                return response()->json(['success' => true, 'message' => 'Operative system deleted. All the corresponding Licenses where deleted as well']);
             } else {
                 return response()->json(['success' => false, 'message' => 'Operative system not found'], 404);
             };
