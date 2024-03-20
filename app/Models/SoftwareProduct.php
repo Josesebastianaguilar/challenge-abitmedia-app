@@ -34,7 +34,7 @@ class SoftwareProduct extends Model
      */
     public function licenses()
     {
-        return $this->hasMany(SoftwareProductLicense::class);
+        return SoftwareProductLicense::where('software_product_sku', $this->sku);
     }
 
     

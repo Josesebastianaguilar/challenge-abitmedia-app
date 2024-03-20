@@ -30,20 +30,51 @@ class SoftwareProductPrice extends Model
     /**
      * Get the software product name asociated with the license.
      *
-     * @return belongsTo
+     * @return SoftwareProduct|null
      */
     public function softwareProduct()
     {
-        return $this->belongsTo(SoftwareProduct::class);
+        if ($this) {
+            return softwareProduct::where('sku', $this->software_product_sku)->first();
+        } else {
+            return null;
+        }
     }
 
     /**
      * Get the software product name asociated with the license.
      *
-     * @return belongsTo
+     * @return OperativeSystem|null
      */
     public function operativeSystem()
     {
-        return $this->belongsTo(OperativeSystem::class);
+        if ($this) {
+            return OperativeSystem::where('slug', $this->operative_system_slug)->first();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Get the software product name asociated with the license.
+     *
+     * @return String
+     */
+    public function getSoftwareProductAttribute()
+    {
+        if ($this->softwareProduct()) {
+            return $this->softwareProduct()->name;
+        } else {
+            return '';
+        }
+    }
+
+    public function getOperativeSystemAttribute()
+    {
+        if ($this->operativeSystem()) {
+            return $this->operativeSystem()->name;
+        } else {
+            return '';
+        }
     }
 }

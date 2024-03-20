@@ -20,7 +20,7 @@ class SoftwareProductPriceController extends Controller
     {
         try {
             $licenses = SoftwareProductPrice::all();
-            return response()->json(['success' => true, 'data' => $licenses]);
+            return response()->json(['success' => true, 'licenses' => $licenses, 'message' => 'All Licenses retrieved successfully']);
         } catch (\Exception $exception) {
             return response()->json(['success' => false, 'message' => $exception->getMessage()], 500);
         }

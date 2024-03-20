@@ -9,13 +9,14 @@ class SoftwareProductLicense extends Model
 {
     use HasFactory;
     
+
+    protected $table = "software_product_licenses";
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'name',
         'serial',
         'software_product_sku',
         'operative_system_slug',
@@ -24,7 +25,6 @@ class SoftwareProductLicense extends Model
 
     protected $appends = [
         'software_product',
-        'operative_system',
         'price'
         // Add other fillable attributes as needed
     ];
@@ -32,21 +32,29 @@ class SoftwareProductLicense extends Model
     /**
      * Get the software product name asociated with the license.
      *
-     * @return belongsTo
+     * @return SoftwareProduct|null
      */
     public function softwareProduct()
     {
-        return $this->belongsTo(SoftwareProduct::class);
+        if ($this) {
+            return SoftwareProduct::where('sku', $this->software_product_sku)->first();
+        } else {
+            return null;
+        }
     }
 
     /**
      * Get the software product name asociated with the license.
      *
-     * @return belongsTo
+     * @return OperativeSystem|null
      */
     public function operativeSystem()
     {
-        return $this->belongsTo(OperativeSystem::class);
+        if ($this) {
+            OperativeSystem::where('slug', $this->operative_system_slug)->first();
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -56,9 +64,13 @@ class SoftwareProductLicense extends Model
      */
     public function price()
     {
-        return SoftwareProductPrice::where('software_product_sku', $this->softwareProduct->sku)
-            ->where('operative_system_slug', $this->operativeSystem->slug)
+        if (!$this->softwareProduct() || !$this->operativeSystem()) {
+            return null;
+        } else {
+            return SoftwareProductPrice::where('software_product_sku', $this->softwareProduct()->sku)
+            ->where('operative_system_slug', $this->operativeSystem()->slug)
             ->first();
+        }
     }
 
     /**
@@ -68,7 +80,11 @@ class SoftwareProductLicense extends Model
      */
     public function getSoftwareProductAttribute()
     {
-        return $this->softwareProduct;
+        if ($this->softwareProduct()) {
+            return $this->softwareProduct()->name;
+        }  else {
+            return '';
+        }
     }
 
     /**
@@ -76,9 +92,34 @@ class SoftwareProductLicense extends Model
      *
      * @return string
      */
-    public function getOperativeSystemNameAttribute()
+    /* public function getOperativeSystemAttribute()
     {
-        return $this->operativeSystem;
+        if ($this->operativeSystem()) {
+            return $this->operativeSystem()->name;
+        } else {
+            return '';
+        }
+    } */
+
+    /**
+     * Generate a serial number for the license.
+     *
+     * @param String $sku
+     * @param String $os_slug
+     * @param int $licenses_count
+     * @return void
+     */
+    public function generateSerialNumber(String $sku, String $os_slug, int $licenses_count)
+    {
+        $maxOsSlugLength = 20; // Adjust this according to your requirements
+        // Truncate SKU and OS slug if they exceed maximum lengths
+        $truncatedOsSlug = substr($os_slug, 0, $maxOsSlugLength);
+        // Calculate the remaining length for the license count
+        $remainingLength = 100 - strlen($sku) - strlen($truncatedOsSlug) - strlen($licenses_count);
+        $randomString = str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890');
+        // Trim the random string to fit the remaining length
+        $trimmedRandomString = substr($randomString, 0, $remainingLength);
+        return $sku . $truncatedOsSlug . $trimmedRandomString . $licenses_count;
     }
 
     /**
@@ -88,6 +129,10 @@ class SoftwareProductLicense extends Model
      */
     public function getPriceAttribute()
     {
-        return $this->price()->value;
+        if ($this->price()) {
+            return $this->price()->value;
+        } else {
+            return 0;
+        }
     }
 }

@@ -19,7 +19,7 @@ class OperativeSystemController extends Controller
     {
         try {
             $operativeSystems = OperativeSystem::all();
-            return response()->json(['success' => true, 'data' => $operativeSystems]);
+            return response()->json(['success' => true, 'operative_systems' => $operativeSystems]);
         } catch (\Exception $exception) {
             return response()->json(['success' => false, 'message' => $exception->getMessage()], 500);
         }
@@ -35,8 +35,8 @@ class OperativeSystemController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255',
-                'slug' => 'required|string|unique:operative_systems,slug|max:255',
+                'name' => 'required|string|min:3|max:100',
+                'slug' => 'required|string|unique:operative_systems,slug|min:3|max:100',
                 // Add other validation rules as needed
             ]);
 
@@ -54,13 +54,25 @@ class OperativeSystemController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param OperativeSystem $operativeSystem
+     * @param String $slug
      * @return JsonResponse
      */
-    public function show(OperativeSystem $operativeSystem): JsonResponse
+    public function show(String $slug): JsonResponse
     {
         try {
-            return response()->json(['success' => true, 'data' => $operativeSystem]);
+            $validator = Validator::make([
+                'slug' => $slug
+            ], 
+            [
+                'slug' => 'required|string|min:3|max:100',
+                // Add other validation rules as needed
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+            }
+            $operativeSystem = OperativeSystem::where('slug', $slug)->first();
+            return response()->json(['success' => true, 'operative_system' => $operativeSystem]);
         } catch (\Exception $exception) {
             return response()->json(['success' => false, 'message' => $exception->getMessage()], 500);
         }
@@ -70,24 +82,40 @@ class OperativeSystemController extends Controller
      * Update the specified resource in storage.
      *
      * @param Request $request
-     * @param OperativeSystem $operativeSystem
+     * @param String $slug
      * @return JsonResponse
      */
-    public function update(Request $request, OperativeSystem $operativeSystem): JsonResponse
+    public function update(Request $request, String $slug): JsonResponse
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255',
-                'slug' => 'required|string|unique:operative_systems,slug,' . $operativeSystem->id . '|max:255',
-                // Add other validation rules as needed
-            ]);
+            if (!$request->hasAny(['name', 'slug'])) {
+                return response()->json(['success' => false, 'message' => 'No data to update'], 422);
+            }
+
+            $rules = [];
+        
+            // Add validation rules for 'name' if present in the request
+            if ($request->has('name')) {
+                $rules['name'] = 'required|string|min:3|max:100';
+            }
+            
+            // Add validation rules for 'sku' if present in the request
+            if ($request->has('slug')) {
+                $rules['slug'] = 'required|string||min:3|max:100';
+            }
+            
+            $validator = Validator::make($request->all(), $rules);
 
             if ($validator->fails()) {
                 return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
             }
-
-            $operativeSystem->update($validator->validated());
-            return response()->json(['success' => true, 'data' => $operativeSystem]);
+            $operativeSystem = OperativeSystem::where('slug', $slug)->first();
+            if ($operativeSystem) {
+                OperativeSystem::where('slug', $slug)->update($validator->validated());
+                return response()->json(['success' => true, 'data' => $validator->validated()]);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Operative system not found'], 404);
+            }
         } catch (\Exception $exception) {
             return response()->json(['success' => false, 'message' => $exception->getMessage()], 500);
         }
@@ -96,14 +124,30 @@ class OperativeSystemController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param OperativeSystem $operativeSystem
+     * @param String $slug
      * @return JsonResponse
      */
-    public function destroy(OperativeSystem $operativeSystem): JsonResponse
+    public function destroy(String $slug): JsonResponse
     {
         try {
-            $operativeSystem->delete();
-            return response()->json(['success' => true, 'message' => 'Operative system deleted successfully']);
+            $validator = Validator::make([
+                'slug' => $slug
+            ], 
+            [
+                'slug' => 'required|string|min:3|max:100',
+                // Add other validation rules as needed
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+            }
+            $operativeSystem = OperativeSystem::where('slug', $slug)->first();
+            if ($operativeSystem) {
+                OperativeSystem::where('slug', $slug)->delete();
+                return response()->json(['success' => true, 'message' => 'Operative system deleted']);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Operative system not found'], 404);
+            };
         } catch (\Exception $exception) {
             return response()->json(['success' => false, 'message' => $exception->getMessage()], 500);
         }
