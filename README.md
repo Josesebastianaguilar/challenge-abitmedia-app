@@ -40,6 +40,8 @@ Verify php 8.2 or higher
 composer install
 php artisan key:generate --ansi
 
+php artisan db:seed --class=SoftwareProductSeeder
+php artisan db:seed --class=OperativeSystemSeeder
 
 ## About Laravel
 
