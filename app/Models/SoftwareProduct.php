@@ -26,7 +26,7 @@ class SoftwareProduct extends Model
      * @var array
      */
     protected $appends = [
-        'stock'
+        'licenses'
     ];
 
     /**
@@ -43,9 +43,9 @@ class SoftwareProduct extends Model
      *
      * @return int
      */
-    public function getStockCountAttribute()
+    public function getlicensesAttribute()
     {
         // Use the items relationship to count the number of related items
-        return $this->items()->count();
+        return $this->licenses()->count();
     }
 }
