@@ -65,7 +65,7 @@ class ServiceController extends Controller
                 'sku' => $sku
             ], 
             [
-                'sku' => 'required|string|min:10|max:10',
+                'sku' => 'required|string|min:10|max:10|exists:services,sku',
                 // Add other validation rules as needed
             ]);
 
@@ -116,7 +116,7 @@ class ServiceController extends Controller
                 $comparator['sku'] = $request->get('sku');
             } else {
                 $comparator['sku'] = $sku;
-                $rules['sku'] = 'required|string|min:10|max:10';
+                $rules['sku'] = 'required|string|min:10|max:10|exists:services,sku';
             }
             
             $validator = Validator::make($comparator, $rules);
@@ -149,7 +149,7 @@ class ServiceController extends Controller
                 'sku' => $sku
             ], 
             [
-                'sku' => 'required|string|min:10|max:10',
+                'sku' => 'required|string|min:10|max:10|exists:services,sku',
                 // Add other validation rules as needed
             ]);
 

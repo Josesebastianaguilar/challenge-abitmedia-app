@@ -65,7 +65,7 @@ class OperativeSystemController extends Controller
                 'slug' => $slug
             ], 
             [
-                'slug' => 'required|string|min:3|max:100',
+                'slug' => 'required|string|min:3|max:100|exists:operative_systems,slug',
                 // Add other validation rules as needed
             ]);
 
@@ -102,7 +102,7 @@ class OperativeSystemController extends Controller
             
             // Add validation rules for 'sku' if present in the request
             if ($request->has('slug')) {
-                $rules['slug'] = 'required|string||min:3|max:100';
+                $rules['slug'] = 'required|string|unique:operative_systems,slug|min:3|max:100';
             }
             
             $validator = Validator::make($request->all(), $rules);
@@ -135,7 +135,7 @@ class OperativeSystemController extends Controller
                 'slug' => $slug
             ], 
             [
-                'slug' => 'required|string|min:3|max:100',
+                'slug' => 'required|string|min:3|max:100|exists:operative_systems,slug',
                 // Add other validation rules as needed
             ]);
 
