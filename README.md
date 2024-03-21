@@ -84,7 +84,7 @@ Este modelo utiliza ciertos traits para proporcionar funcionalidades adicionales
 <strong>HasFactory:</strong> Este trait proporciona métodos para generar instancias de modelo para pruebas o semillas de base de datos.
 <strong>Notifiable:</strong> Este trait permite que el modelo envíe notificaciones mediante el sistema de notificaciones de Laravel.
 
-## SoftwareProduct (Porducto de Software)
+## Modelo SoftwareProduct (Porducto de Software)
 
 El modelo SoftwareProduct representa un producto de software en la aplicación. Este modelo proporciona métodos para acceder y manipular información relacionada con los productos de software.
 
@@ -101,7 +101,7 @@ sku: El código SKU del producto de software, que se utiliza para identificar de
 
 licenses(): Esta función define la relación entre el producto de software y sus existencias o licencias asociadas. Retorna una consulta para obtener las licencias relacionadas con el producto de software.
 
-## Modelo Service
+## Modelo Service (Servicio)
 
 El modelo Service representa un servicio en la aplicación. Este modelo proporciona métodos para acceder y manipular información relacionada con los servicios.
 
@@ -128,7 +128,7 @@ El modelo OperativeSystem se encuentra en el directorio app/Models/OperativeSyst
 <strong>name:</strong> El nombre del sistema operativo.
 <strong>slug:</strong> El slug del sistema operativo, que se utiliza para identificar de manera única el sistema operativo y en URLs amigables.
 
-## Modelo SoftwareProductLicense
+## Modelo SoftwareProductLicense (Existencias o licencias de producto software)
 
 El modelo SoftwareProductLicense representa una existencia o licencia de un producto de software en la aplicación. Este modelo proporciona métodos para acceder y manipular información relacionada con las licencias de productos de software.
 
@@ -151,7 +151,7 @@ El modelo SoftwareProductLicense se encuentra en el directorio app/Models/Softwa
 <strong>getSoftwareProductAttribute():</strong> Método de acceso para obtener el nombre del producto de software asociado a la licencia.
 getPriceAttribute(): Método de acceso para obtener el precio del producto de software asociado a la licencia.
 
-## Modelo SoftwareProductPrice
+## Modelo SoftwareProductPrice (Precio de producto de software)
 
 El modelo SoftwareProductPrice representa el precio de un producto de software asociado a un sistema operativo en la aplicación. Este modelo proporciona métodos para acceder y manipular información relacionada con los precios de los productos de software.
 
