@@ -44,13 +44,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('software-products/{sku}/prices', [SoftwareProductController::class, 'softwareProductPrices']);
     Route::get('software-products/{sku}/prices/{os_slug}', [SoftwareProductController::class, 'softwareProductPricesOS']);
     Route::get('software-products/prices/operative-system/{os_slug}', [SoftwareProductController::class, 'operativeSystemSoftwareProductPrices']);
-    Route::get('software-products/prices/{id}', [SoftwareProductController::class, 'softwareProductPriceShow']);
+    Route::get('software-products/prices/show/{id}', [SoftwareProductController::class, 'softwareProductPriceShow']);
     Route::post('software-products/prices', [SoftwareProductController::class, 'generalSoftwareProductPriceStore']);
     Route::post('software-products/{sku}/prices/{os_slug}', [SoftwareProductController::class, 'SoftwareProductPriceStoreOS']);
     Route::post('software-products/{sku}/prices/', [SoftwareProductController::class, 'softwareProductPriceStore']);
     Route::post('software-products/prices/operative-system/{os_slug}', [SoftwareProductController::class, 'operativeSystemSoftwareProductPriceStore']);
     Route::put('software-products/prices/{id}', [SoftwareProductController::class, 'softwareProductPriceUpdate']);
-    Route::delete('software-products/licenses/{id}', [SoftwareProductController::class, 'destroySoftwareProductPrice']);
+    Route::delete('software-products/prices/delete/{id}', [SoftwareProductController::class, 'destroySoftwareProductPrice']);
     // Service Routes
     Route::get('services', [ServiceController::class, 'index']);
     Route::get('services/{sku}', [ServiceController::class, 'show']);

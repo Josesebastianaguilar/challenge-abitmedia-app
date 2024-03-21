@@ -254,7 +254,7 @@ class SoftwareProductController extends Controller
             if ($validator->fails()) {
                 return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
             }
-            $license = new softwareProductLicense();
+            $license = new SoftwareProductLicense();
             $license->software_product_sku = $sku;
             $license->operative_system_slug = $os_slug;
             $licenses_count = SoftwareProductLicense::count();
@@ -279,13 +279,13 @@ class SoftwareProductController extends Controller
                 'sku' => $sku,
                 'os_slug' => $request->get('os_slug')
             ], [
-                'sku' => 'required|string|min:10|max:10|exists:softwre_products,sku',
+                'sku' => 'required|string|min:10|max:10|exists:software_products,sku',
                 'os_slug' => 'required|string|min:3|max:100|exists:operative_systems,slug',
             ]);
             if ($validator->fails()) {
                 return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
             }
-            $license = new softwareProductLicense();
+            $license = new SoftwareProductLicense();
             $license->software_product_sku = $sku;
             $license->operative_system_slug = $request->get('os_slug');
             $licenses_count = SoftwareProductLicense::count();
@@ -317,7 +317,7 @@ class SoftwareProductController extends Controller
             if ($validator->fails()) {
                 return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
             }
-            $license = new softwareProductLicense();
+            $license = new SoftwareProductLicense();
             $license->software_product_sku = $request->get('sku');
             $license->operative_system_slug = $os_slug;
             $licenses_count = SoftwareProductLicense::count();
@@ -348,7 +348,7 @@ class SoftwareProductController extends Controller
             if ($validator->fails()) {
                 return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
             }
-            $license = new softwareProductLicense();
+            $license = new SoftwareProductLicense();
             $license->software_product_sku = $validator->validated()['sku'];
             $license->operative_system_slug = $validator->validated()['os_slug'];
             $licenses_count = SoftwareProductLicense::count();
@@ -394,7 +394,7 @@ class SoftwareProductController extends Controller
     public function softwareProductLicenseUpdate(Request $request, String $serial): JsonResponse
     {
         try {
-            if (!$request->hasAny(['software_product_sku', 'operative_system_slug'])) {
+            if (!$request->hasAny(['sku', 'os_slug'])) {
                 return response()->json(['success' => false, 'message' => 'No data to update'], 422);
             }
             $rules = [
@@ -405,15 +405,15 @@ class SoftwareProductController extends Controller
             ];
         
             // Add validation rules for 'name' if present in the request
-            if ($request->has('software_product_sku')) {
+            if ($request->has('sku')) {
                 $rules['software_product_sku'] = 'required|string|min:10|max:10|exists:software_products,sku';
-                $comparator['software_product_sku'] = $request->get('software_product_sku');
+                $comparator['software_product_sku'] = $request->get('sku');
             }
             
             // Add validation rules for 'sku' if present in the request
-            if ($request->has('operative_system_slug')) {
+            if ($request->has('os_slug')) {
                 $rules['operative_system_slug'] = 'required|string|min:3|max:100|exists:operative_systems,slug';
-                $comparator['operative_system_slug'] = $request->get('operative_system_slug');
+                $comparator['operative_system_slug'] = $request->get('os_slug');
             }
             $validator = Validator::make($comparator, $rules);
             if ($validator->fails()) {
@@ -546,19 +546,27 @@ class SoftwareProductController extends Controller
     public function generalSoftwareProductPriceStore(Request $request): JsonResponse
     {
         try {
-            $validator = Validator::make($request->all(), [
+            $validator = Validator::make([
+                'value' => $request->get('value'),
+                'software_product_sku' => $request->get('sku'),
+                'operative_system_slug' => $request->get('os_slug')
+            ], [
                 'value' => 'required|numeric|min:0',
-                'software_product_sku' => 'required|string|exists:software_products,sku',
-                'operative_system_slug' => 'required|string|exists:operative_systems,slug',
+                'software_product_sku' => 'required|string|min:10|max:10|exists:software_products,sku',
+                'operative_system_slug' => 'required|string|min:3|max:100|exists:operative_systems,slug',
                 // Add other validation rules as needed
             ]);
 
             if ($validator->fails()) {
                 return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
             }
-
-            $price = SoftwareProductPrice::create($validator->validated());
-            return response()->json(['success' => true, 'price' => $price], 201);
+            $count_prices_existence = SoftwareProductPrice::where('software_product_sku', $request->get('sku'))->where('operative_system_slug', $request->get('os_slug'))->count();
+            if (!$count_prices_existence) {
+                $price = SoftwareProductPrice::create($validator->validated());
+                return response()->json(['success' => true, 'price' => $price], 201);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Price for the software product with SKU: ' .$request->get('sku') . ' and operative system ' . $request->get('os_slug') . ' already exists'], 422);
+            }
         } catch (\Exception $exception) {
             return response()->json(['success' => false, 'message' => $exception->getMessage()], 500);
         }
@@ -581,17 +589,21 @@ class SoftwareProductController extends Controller
                 'operative_system_slug' => $os_slug
             ], [
                 'value' => 'required|numeric|min:0',
-                'software_product_sku' => 'required|string|exists:software_products,sku',
-                'operative_system_slug' => 'required|string|exists:operative_systems,slug',
+                'software_product_sku' => 'required|string|min:10|max:10|exists:software_products,sku',
+                'operative_system_slug' => 'required|string|min:3|max:100|exists:operative_systems,slug',
                 // Add other validation rules as needed
             ]);
 
             if ($validator->fails()) {
                 return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
             }
-
-            $price = SoftwareProductPrice::create($validator->validated());
-            return response()->json(['success' => true, 'price' => $price], 201);
+            $count_prices_existence = SoftwareProductPrice::where('software_product_sku', $sku)->where('operative_system_slug', $os_slug)->count();
+            if (!$count_prices_existence) {
+                $price = SoftwareProductPrice::create($validator->validated());
+                return response()->json(['success' => true, 'price' => $price], 201);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Price for the software product with SKU: ' .$sku . ' and operative system ' . $os_slug . ' already exists'], 422);
+            }
         } catch (\Exception $exception) {
             return response()->json(['success' => false, 'message' => $exception->getMessage()], 500);
         }
@@ -613,8 +625,8 @@ class SoftwareProductController extends Controller
                 'operative_system_slug' => $request->get('os_slug')
             ], [
                 'value' => 'required|numeric|min:0',
-                'software_product_sku' => 'required|string|exists:software_products,sku',
-                'operative_system_slug' => 'required|string|exists:operative_systems,slug',
+                'software_product_sku' => 'required|string|min:10|max:10|exists:software_products,sku',
+                'operative_system_slug' => 'required|string|min:3|max:100|exists:operative_systems,slug',
                 // Add other validation rules as needed
             ]);
 
@@ -622,8 +634,13 @@ class SoftwareProductController extends Controller
                 return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
             }
 
-            $price = SoftwareProductPrice::create($validator->validated());
-            return response()->json(['success' => true, 'prices' => $price], 201);
+            $count_prices_existence = SoftwareProductPrice::where('software_product_sku', $sku)->where('operative_system_slug', $request->get('os_slug'))->count();
+            if (!$count_prices_existence) {
+                $price = SoftwareProductPrice::create($validator->validated());
+                return response()->json(['success' => true, 'prices' => $price], 201);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Price for the software product with SKU: ' .$sku . ' and operative system ' . $request->get('os_slug') . ' already exists'], 422);
+            }
         } catch (\Exception $exception) {
             return response()->json(['success' => false, 'message' => $exception->getMessage()], 500);
         }
@@ -645,17 +662,21 @@ class SoftwareProductController extends Controller
                 'operative_system_slug' => $os_slug
             ], [
                 'value' => 'required|numeric|min:0',
-                'software_product_sku' => 'required|string|exists:software_products,sku',
-                'operative_system_slug' => 'required|string|exists:operative_systems,slug',
+                'software_product_sku' => 'required|string|min:10|max:10|exists:software_products,sku',
+                'operative_system_slug' => 'required|string|min:3|max:100|exists:operative_systems,slug',
                 // Add other validation rules as needed
             ]);
 
             if ($validator->fails()) {
                 return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
             }
-
-            $price = SoftwareProductPrice::create($validator->validated());
-            return response()->json(['success' => true, 'prices' => $price], 201);
+            $count_prices_existence = SoftwareProductPrice::where('software_product_sku', $request->get('sku'))->where('operative_system_slug', $os_slug)->count();
+            if (!$count_prices_existence) {
+                $price = SoftwareProductPrice::create($validator->validated());
+                return response()->json(['success' => true, 'prices' => $price], 201);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Price for the software product with SKU: ' .$request->get('sku') . ' and operative system ' . $os_slug . ' already exists'], 422);
+            }
         } catch (\Exception $exception) {
             return response()->json(['success' => false, 'message' => $exception->getMessage()], 500);
         }
@@ -673,7 +694,7 @@ class SoftwareProductController extends Controller
             $validator = Validator::make([
                 'id' => $id,
             ], [
-                'id' => 'required|integer|min:1|exists:software_product_prices,id',
+                'id' => 'required|numeric|integer|min:1|exists:software_product_prices,id',
                 // Add other validation rules as needed
             ]);
 
@@ -697,33 +718,51 @@ class SoftwareProductController extends Controller
     public function softwareProductPriceUpdate(Request $request, int $id): JsonResponse
     {
         try {
-            if (!$request->hasAny(['software_product_sku', 'operative_system_slug', 'value'])) {
+            if (!$request->hasAny(['sku', 'os_slug', 'value'])) {
                 return response()->json(['success' => false, 'message' => 'No data to update'], 422);
             }
             $rules = [
-                'id' => 'required|integer|min:1|exists:software_product_prices,id'
+                'id' => 'required|numeric|integer|min:1|exists:software_product_prices,id'
             ];
             $comparator = [
                 'id' => $id
             ];
         
             // Add validation rules for 'software_product_sku' if present in the request
-            if ($request->has('software_product_sku')) {
+            if ($request->has('sku')) {
                 $rules['software_product_sku'] = 'required|string|min:10|max:10|exists:software_products,sku';
-                $comparator['software_product_sku'] = $request->get('software_product_sku');
+                $comparator['software_product_sku'] = $request->get('sku');
+            }
+
+            if ($request->has('value')) {
+                $rules['value'] = 'required|numeric|min:0|';
+                $comparator['value'] = $request->get('value');
             }
             
             // Add validation rules for 'operative_system_slug' if present in the request
-            if ($request->has('operative_system_slug')) {
+            if ($request->has('os_slug')) {
                 $rules['operative_system_slug'] = 'required|string|min:3|max:100|exists:operative_systems,slug';
-                $comparator['operative_system_slug'] = $request->get('operative_system_slug');
+                $comparator['operative_system_slug'] = $request->get('os_slug');
             }
             $validator = Validator::make($comparator, $rules);
             if ($validator->fails()) {
                 return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
             }
-            softwareProductPrice::where('id', $id)->update($validator->validated());
-            return response()->json(['success' => true, 'data' => $validator->validated(), 'message' => 'Software Product License Updated.'], 200);  
+            $currrentSoftwareProductPrice = SoftwareProductPrice::where('id', $id)->first();
+            $count_prices_existence = 0;
+            if ($request->has('sku') && $request->has('os_slug')) {
+                $count_prices_existence = SoftwareProductPrice::where('software_product_sku', $request->get('sku'))->where('operative_system_slug', $request->get('os_slug'))->count();
+            } else if ($request->has('sku')) {
+                $count_prices_existence = SoftwareProductPrice::where('software_product_sku', $request->get('sku'))->where('operative_system_slug', $currrentSoftwareProductPrice->operative_system_slug)->count();
+            } else if ($request->has('os_slug')) {
+                $count_prices_existence = SoftwareProductPrice::where('software_product_sku', $currrentSoftwareProductPrice->software_product_sku)->where('operative_system_slug', $request->get('os_slug'))->count();
+            }
+            if (!$count_prices_existence) {
+                SoftwareProductPrice::where('id', $id)->update($validator->validated());
+                return response()->json(['success' => true, 'data' => $validator->validated(), 'message' => 'Software Product License Updated.'], 200);  
+            } else {
+                return response()->json(['success' => false, 'message' => 'Price for the software product sku and os slug combination already exists'], 422);
+            }
         } catch (\Exception $exception) {
             return response()->json(['success' => false, 'message' => $exception->getMessage()], 500);
         }
@@ -738,7 +777,7 @@ class SoftwareProductController extends Controller
     public function destroySoftwareProductPrice(int $id): JsonResponse
     {
         try {
-            $validator = Validator::make(['id' => $id], ['serial' => 'required|integer|min:1|exists:software_product_prices,id']);
+            $validator = Validator::make(['id' => $id], ['id' => 'required|numeric|integer|min:1|exists:software_product_prices,id']);
             if ($validator->fails()) {
                 return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
             }

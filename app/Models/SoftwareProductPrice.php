@@ -35,7 +35,7 @@ class SoftwareProductPrice extends Model
     public function softwareProduct()
     {
         if ($this) {
-            return softwareProduct::where('sku', $this->software_product_sku)->first();
+            return SoftwareProduct::where('sku', $this->software_product_sku)->first();
         } else {
             return null;
         }
