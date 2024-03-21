@@ -1,5 +1,47 @@
 ## challenge-abitmedia-app
 
+Autor: José Aguilar
+Datos de contacto:
+
+email: jose.aguilar.siva@outlook.com
+teléofono: +593999077465
+
+## Resumen
+
+Este proyecto es una API REST de Laravel v11 para gestionar licencias y precios de productos de software. Proporciona endpoints para crear, actualizar, eliminar y recuperar licencias y precios de productos de software. La API está construida utilizando PHP versión 8.2 o superior (se utilizó 8.3.4 en el desarrollo).
+
+## Requisitos
+
+PHP 8.2 o superior
+Base de datos MySQL
+Composer
+
+## Módulos de PHP Requeridos
+
+Extensión OpenSSL PHP
+Extensión PDO PHP
+Extensión Mbstring PHP
+Extensión Tokenizer PHP
+Extensión XML PHP
+Extensión Ctype PHP
+Extensión JSON PHP
+Extensión BCMath PHP
+
+## Pasos de Instalación
+
+Instalar Composer: Ver la documentación oficial https://getcomposer.org/download/
+
+Siga las instrucciones de instalación en el sitio web de Composer
+
+## Clonar el Repositorio:
+
+El repositorio está en github con visibilidad pública
+
+<code> git clone https://github.com/Josesebastianaguilar/challenge-abitmedia-app.git </code>
+
+
+
+
 REST API in PHP with data persistence, to provide the following functionalities.
 
 ## Introduction:
