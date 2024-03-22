@@ -318,6 +318,8 @@ De manera alternativa, se puede instalar servidores para ejecutar la aplicación
 
 ## Documentación de Rutas de la API
 Para obtener documentación detallada sobre cada ruta de la API, consulte el espacio de trabajo compartido en Postman. Si no puede acceder a este, comuníquese con el autor del proyecto a los datos específicados en el inicio de este documento. También puede revisar las definiciones de ruta y los métodos de controlador correspondientes en el código fuente del proyecto. Cada ruta está documentada con su propósito, parámetros esperados y posibles respuestas.
+Enlace del espacio de trabajo en Postman:
+https://www.postman.com/testsdev/workspace/challenge-abitmedia-app-jos-aguilar/overview
 
 ## Documentación de Laravel
 
@@ -636,6 +638,8 @@ Alternatively, you can set up servers to run the application:
 ## API Route Documentation
 
 For detailed documentation on each API route, refer to the shared workspace in Postman. If you cannot access this, please contact the project author using the contact information provided at the beginning of this document. You can also review the route definitions and corresponding controller methods in the project's source code. Each route is documented with its purpose, expected parameters, and possible responses.
+Link to Postman workpsace:
+https://www.postman.com/testsdev/workspace/challenge-abitmedia-app-jos-aguilar/overview
 
 ## Laravel Docs
 
